@@ -78,14 +78,18 @@ After deploying to Vercel:
 - `GET /` - Homepage with product listing
 - `GET /product/[handle]` - Product detail page
 - `GET /cart` - Shopping cart page
-- `POST /api/create-checkout` - Create Shopify checkout
+- `POST /api/validate-and-create-checkout` - Validate inventory and create Shopify checkout
 
 ### Protected Admin Endpoints (require `x-demo-admin-secret` header)
+- `GET /api/admin/orders` - Fetch recent orders
 - `POST /api/admin/create-product` - Create product via Admin API
 - `POST /api/admin/update-inventory` - Update inventory levels
 
 ### Webhook Endpoints
 - `POST /api/webhooks/orders` - Order creation webhook (HMAC verified)
+
+### Admin Dashboard
+- `GET /admin` - View recent orders (password protected with DEMO_ADMIN_SECRET)
 
 ## Security Reminders
 

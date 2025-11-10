@@ -21,7 +21,7 @@ export default function CartPage() {
         quantity: item.quantity,
       }));
 
-      const response = await fetch('/api/create-checkout', {
+      const response = await fetch('/api/validate-and-create-checkout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -31,7 +31,7 @@ export default function CartPage() {
 
       const data = await response.json();
 
-      if (!response.ok) {
+      if (!data.ok) {
         throw new Error(data.error || 'Failed to create checkout');
       }
 
