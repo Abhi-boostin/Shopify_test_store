@@ -1,32 +1,14 @@
 import { NextResponse } from 'next/server';
 import { storefrontGraphQL } from '@/lib/shopify';
 
-// GraphQL query to get variant inventory info
-const GET_VARIANTS_QUERY = `
-  query GetVariants($ids: [ID!]!) {
-    nodes(ids: $ids) {
-      ... on ProductVariant {
+const CREATE_CART_MUTATION = `
+  mutation cartCreate($input: CartInput!) {
+    cartCreate(input: $input) {
+      cart {
         id
-        title
-        availableForSale
-        quantityAvailable
-        product {
-          title
-        }
+        checkoutUrl
       }
-    }
-  }
-`;
-
-// GraphQL mutation to create checkout
-const CREATE_CHECKOUT_MUTATION = `
-  mutation checkoutCreate($input: CheckoutCreateInput!) {
-    checkoutCreate(input: $input) {
-      checkout {
-        id
-        webUrl
-      }
-      checkoutUserErrors {
+      userErrors {
         code
         field
         message
@@ -47,76 +29,36 @@ export async function POST(request) {
       );
     }
 
-    // Step 1: Validate inventory availability
-    const variantIds = lines.map(line => line.variantId);
-    
-    try {
-      const variantsData = await storefrontGraphQL(GET_VARIANTS_QUERY, { ids: variantIds });
-      
-      // Check each variant's availability
-      for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
-        const variant = variantsData.nodes[i];
-        
-        if (!variant) {
-          return NextResponse.json({
-            ok: false,
-            error: `Product variant not found`,
-          }, { status: 400 });
-        }
-
-        if (!variant.availableForSale) {
-          return NextResponse.json({
-            ok: false,
-            error: `${variant.product.title} - ${variant.title} is not available for sale`,
-          }, { status: 400 });
-        }
-
-        // Check if requested quantity is available
-        if (variant.quantityAvailable !== null && line.quantity > variant.quantityAvailable) {
-          return NextResponse.json({
-            ok: false,
-            error: `Only ${variant.quantityAvailable} available for ${variant.product.title} - ${variant.title}`,
-            available: variant.quantityAvailable,
-          }, { status: 400 });
-        }
-      }
-    } catch (err) {
-      console.error('Inventory validation error:', err);
-      // Continue to checkout even if validation fails (Shopify will handle it)
-    }
-
-    // Step 2: Create checkout
-    const lineItems = lines.map(line => ({
-      variantId: line.variantId,
+    const cartLines = lines.map(line => ({
+      merchandiseId: line.variantId,
       quantity: line.quantity,
     }));
 
-    const checkoutData = await storefrontGraphQL(CREATE_CHECKOUT_MUTATION, {
-      input: { lineItems },
+    const data = await storefrontGraphQL(CREATE_CART_MUTATION, {
+      input: { lines: cartLines },
     });
 
-    if (checkoutData.checkoutCreate.checkoutUserErrors.length > 0) {
-      const errors = checkoutData.checkoutCreate.checkoutUserErrors;
-      console.error('Checkout creation errors:', errors);
+    if (data.cartCreate.userErrors.length > 0) {
+      const errors = data.cartCreate.userErrors;
+      console.error('Cart creation errors:', errors);
       return NextResponse.json({
         ok: false,
-        error: errors[0].message || 'Failed to create checkout',
+        error: errors[0].message || 'Failed to create cart',
       }, { status: 400 });
     }
 
-    const checkout = checkoutData.checkoutCreate.checkout;
+    const cart = data.cartCreate.cart;
 
     return NextResponse.json({
       ok: true,
-      checkoutUrl: checkout.webUrl,
-      checkoutId: checkout.id,
+      checkoutUrl: cart.checkoutUrl,
+      cartId: cart.id,
     });
   } catch (error) {
-    console.error('Checkout error:', error);
+    console.error('Cart creation error:', error);
     return NextResponse.json({
       ok: false,
-      error: error.message || 'Failed to create checkout',
+      error: error.message || 'Failed to create cart',
     }, { status: 500 });
   }
 }

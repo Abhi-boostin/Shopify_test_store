@@ -2,7 +2,6 @@ import { storefrontGraphQL } from '@/lib/shopify';
 import Link from 'next/link';
 import Image from 'next/image';
 
-// GraphQL query to fetch products using Storefront API
 const PRODUCTS_QUERY = `
   query GetProducts($first: Int!) {
     products(first: $first) {
@@ -42,7 +41,6 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
@@ -60,7 +58,6 @@ export default async function HomePage() {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <h2 className="text-3xl font-bold text-gray-900 mb-8">Products</h2>
 
@@ -68,17 +65,15 @@ export default async function HomePage() {
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
             <p className="font-medium">Error loading products</p>
             <p className="text-sm">{error}</p>
-            <p className="text-sm mt-2">Check your environment variables are set correctly.</p>
           </div>
         )}
 
         {products.length === 0 && !error && (
           <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded">
-            <p>No products found. Make sure your store has products or run the seed script.</p>
+            <p>No products found.</p>
           </div>
         )}
 
-        {/* Product Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {products.map((product) => (
             <Link
@@ -86,7 +81,6 @@ export default async function HomePage() {
               href={`/product/${product.handle}`}
               className="group bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden"
             >
-              {/* Product Image */}
               <div className="aspect-square relative bg-gray-100">
                 {product.featuredImage ? (
                   <Image
@@ -102,7 +96,6 @@ export default async function HomePage() {
                 )}
               </div>
 
-              {/* Product Info */}
               <div className="p-4">
                 <h3 className="font-semibold text-gray-900 mb-1 line-clamp-2">
                   {product.title}

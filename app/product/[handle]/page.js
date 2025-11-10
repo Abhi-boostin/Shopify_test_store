@@ -36,7 +36,6 @@ const PRODUCT_QUERY = `
 `;
 
 export default async function ProductPage({ params }) {
-  // Await params in Next.js 15+
   const { handle } = await params;
   
   let product = null;
@@ -76,7 +75,6 @@ export default async function ProductPage({ params }) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
@@ -96,14 +94,12 @@ export default async function ProductPage({ params }) {
         </div>
       </header>
 
-      {/* Product Detail */}
       <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <Link href="/" className="text-blue-600 hover:underline mb-6 inline-block">
           ← Back to products
         </Link>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-white rounded-lg shadow-sm p-6">
-          {/* Images */}
           <div>
             {images.length > 0 ? (
               <div className="space-y-4">
@@ -137,7 +133,6 @@ export default async function ProductPage({ params }) {
             )}
           </div>
 
-          {/* Product Info */}
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-4">{product.title}</h1>
             
@@ -145,14 +140,12 @@ export default async function ProductPage({ params }) {
               {variants[0].price.currencyCode} {parseFloat(variants[0].price.amount).toFixed(2)}
             </p>
 
-            {/* Add to Cart Component */}
             <AddToCartButton 
               product={product}
               variants={variants}
               images={images}
             />
 
-            {/* Description */}
             {product.description && (
               <div className="border-t pt-6 mt-6">
                 <h2 className="text-lg font-semibold text-gray-900 mb-2">Description</h2>

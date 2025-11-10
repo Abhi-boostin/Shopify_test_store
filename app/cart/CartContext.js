@@ -7,19 +7,17 @@ const CartContext = createContext();
 export function CartProvider({ children }) {
   const [cart, setCart] = useState([]);
 
-  // Load cart from localStorage on mount
   useEffect(() => {
     const savedCart = localStorage.getItem('cart');
     if (savedCart) {
       try {
         setCart(JSON.parse(savedCart));
       } catch (err) {
-        console.error('Failed to parse cart from localStorage:', err);
+        console.error('Failed to parse cart:', err);
       }
     }
   }, []);
 
-  // Save cart to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cart));
   }, [cart]);
@@ -29,14 +27,12 @@ export function CartProvider({ children }) {
       const existingItem = prevCart.find(i => i.variantId === item.variantId);
       
       if (existingItem) {
-        // Increment quantity if item already in cart
         return prevCart.map(i =>
           i.variantId === item.variantId
             ? { ...i, quantity: i.quantity + 1 }
             : i
         );
       } else {
-        // Add new item with quantity 1
         return [...prevCart, { ...item, quantity: 1 }];
       }
     });

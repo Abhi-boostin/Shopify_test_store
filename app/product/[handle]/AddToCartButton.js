@@ -6,6 +6,7 @@ import { useCart } from '@/app/cart/CartContext';
 export default function AddToCartButton({ product, variants, images }) {
   const [selectedVariant, setSelectedVariant] = useState(variants[0]);
   const { addToCart } = useCart();
+  const [added, setAdded] = useState(false);
 
   const handleAddToCart = () => {
     if (selectedVariant) {
@@ -16,6 +17,8 @@ export default function AddToCartButton({ product, variants, images }) {
         price: selectedVariant.price,
         image: images[0]?.url,
       });
+      setAdded(true);
+      setTimeout(() => setAdded(false), 2000);
     }
   };
 
@@ -23,7 +26,6 @@ export default function AddToCartButton({ product, variants, images }) {
 
   return (
     <>
-      {/* Variant Selection */}
       {variants.length > 1 && (
         <div className="mb-6">
           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -46,13 +48,12 @@ export default function AddToCartButton({ product, variants, images }) {
         </div>
       )}
 
-      {/* Add to Cart Button */}
       <button
         onClick={handleAddToCart}
         disabled={!isAvailable}
         className="w-full bg-blue-600 text-white font-semibold py-3 px-6 rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors mb-6"
       >
-        {isAvailable ? 'Add to Cart' : 'Out of Stock'}
+        {added ? '✓ Added to Cart' : isAvailable ? 'Add to Cart' : 'Out of Stock'}
       </button>
     </>
   );
