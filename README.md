@@ -1,36 +1,130 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Next.js Shopify Storefront Demo
 
-## Getting Started
+Next.js storefront demo wired to Shopify (Storefront + Admin + webhooks).
 
-First, run the development server:
+## Local Development
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to view the storefront.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## Environment Variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Local Setup
 
-## Learn More
+1. Copy `.env.example` to `.env.local`:
+   ```bash
+   cp .env.example .env.local
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+2. Fill in your Shopify credentials in `.env.local`:
+   - `NEXT_PUBLIC_SHOP_DOMAIN` - Your store domain (e.g., `your-store.myshopify.com`)
+   - `NEXT_PUBLIC_STOREFRONT_TOKEN` - Storefront API access token (safe for client-side)
+   - `SHOP_DOMAIN` - Same as above (for server-side use)
+   - `STOREFRONT_TOKEN` - Same storefront token (for server-side use)
+   - `ADMIN_API_TOKEN` - Admin API access token (NEVER expose to client)
+   - `WEBHOOK_SECRET` - Secret for webhook HMAC verification
+   - `DEMO_ADMIN_SECRET` - Password for demo admin endpoints
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**IMPORTANT:** Never commit `.env.local` to Git. It contains sensitive credentials.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Vercel Deployment
 
-## Deploy on Vercel
+1. Push your code to GitHub
+2. Import project in Vercel dashboard
+3. Go to **Project Settings → Environment Variables**
+4. Add all variables from `.env.example` with your actual values
+5. Set `ADMIN_API_TOKEN` and `WEBHOOK_SECRET` to **Production** and **Preview** only (not Development)
+6. Deploy
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Webhook Configuration
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+After deploying to Vercel:
+
+1. Copy your Vercel preview/production URL (e.g., `https://your-app.vercel.app`)
+2. In Shopify Admin, go to **Settings → Notifications → Webhooks**
+3. Create webhook:
+   - Event: `Order creation`
+   - URL: `https://your-app.vercel.app/api/webhooks/orders`
+   - Format: JSON
+4. Use your `WEBHOOK_SECRET` value for verification
+
+## Demo Checklist
+
+- [ ] Products seeded (use seed script or create via `/api/admin/create-product`)
+- [ ] Products display on homepage
+- [ ] Product detail pages load correctly
+- [ ] Add to cart functionality works
+- [ ] Checkout flow redirects to Shopify checkout
+- [ ] Webhook verification working (check logs after test order)
+- [ ] Admin endpoints protected with `DEMO_ADMIN_SECRET`
+
+## 2-Minute Demo Flow
+
+1. **Seed products**: Run `node scripts/seed-demo.js` or manually create via admin endpoint
+2. **View frontend**: Navigate to homepage, see products listed
+3. **Add to cart**: Click product → Add to cart → View cart
+4. **Checkout**: Click checkout button → Redirects to Shopify checkout
+5. **Complete order**: Complete test order in Shopify
+6. **Verify webhook**: Check server logs for webhook received message
+7. **Check Shopify Admin**: View order in Shopify dashboard
+
+## API Endpoints
+
+### Public Endpoints
+- `GET /` - Homepage with product listing
+- `GET /product/[handle]` - Product detail page
+- `GET /cart` - Shopping cart page
+- `POST /api/create-checkout` - Create Shopify checkout
+
+### Protected Admin Endpoints (require `x-demo-admin-secret` header)
+- `POST /api/admin/create-product` - Create product via Admin API
+- `POST /api/admin/update-inventory` - Update inventory levels
+
+### Webhook Endpoints
+- `POST /api/webhooks/orders` - Order creation webhook (HMAC verified)
+
+## Security Reminders
+
+⚠️ **NEVER commit these to Git:**
+- `ADMIN_API_TOKEN`
+- `WEBHOOK_SECRET`
+- `.env.local` file
+
+✅ **Safe for client-side:**
+- `NEXT_PUBLIC_SHOP_DOMAIN`
+- `NEXT_PUBLIC_STOREFRONT_TOKEN` (Storefront API token only)
+
+## Project Structure
+
+```
+├── app/
+│   ├── page.js                          # Homepage (product listing)
+│   ├── product/[handle]/page.js         # Product detail page
+│   ├── cart/page.js                     # Shopping cart
+│   └── api/
+│       ├── create-checkout/route.js     # Checkout creation
+│       ├── admin/
+│       │   ├── create-product/route.js  # Admin: create product
+│       │   └── update-inventory/route.js # Admin: update inventory
+│       └── webhooks/
+│           └── orders/route.js          # Order webhook handler
+├── lib/
+│   └── shopify.js                       # Shopify API helpers
+├── utils/
+│   └── webhook.js                       # Webhook verification helper
+├── scripts/
+│   └── seed-demo.js                     # Product seeding script
+└── data/
+    └── shopify_demo_products.csv        # Sample product data
+```
+
+## Troubleshooting
+
+- **Products not loading**: Check `NEXT_PUBLIC_STOREFRONT_TOKEN` is set correctly
+- **Checkout fails**: Verify `STOREFRONT_TOKEN` has checkout permissions
+- **Admin endpoints fail**: Ensure `x-demo-admin-secret` header matches `DEMO_ADMIN_SECRET`
+- **Webhook verification fails**: Double-check `WEBHOOK_SECRET` matches Shopify webhook config
