@@ -1,5 +1,7 @@
 import "./globals.css";
 import { CartProvider } from "./cart/CartContext";
+import { AuthProvider } from "./context/AuthContext";
+import { WishlistProvider } from "./context/WishlistContext";
 
 export const metadata = {
   title: "Test Store",
@@ -15,7 +17,13 @@ export default function RootLayout({ children }) {
         <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className="antialiased" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-        <CartProvider>{children}</CartProvider>
+        <AuthProvider>
+          <WishlistProvider>
+            <CartProvider>
+              {children}
+            </CartProvider>
+          </WishlistProvider>
+        </AuthProvider>
       </body>
     </html>
   );

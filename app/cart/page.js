@@ -4,13 +4,27 @@ import { useCart } from './CartContext';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
+import AuthModal from '@/app/components/AuthModal';
 
 export default function CartPage() {
   const { cart, updateQuantity, removeFromCart, cartTotal } = useCart();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
   const handleCheckout = async () => {
+    const accessToken = localStorage.getItem('customerAccessToken');
+    
+    if (!accessToken) {
+      setShowAuthModal(true);
+      return;
+    }
+
+    await proceedToCheckout();
+  };
+
+  const proceedToCheckout = async () => {
     setLoading(true);
     setError(null);
 
@@ -47,7 +61,14 @@ export default function CartPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <>
+      <AuthModal 
+        isOpen={showAuthModal} 
+        onClose={() => setShowAuthModal(false)}
+        onSuccess={proceedToCheckout}
+      />
+      
+      <div className="min-h-screen bg-white">
       <header className="border-b border-black">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex justify-between items-center">
@@ -172,5 +193,6 @@ export default function CartPage() {
         )}
       </main>
     </div>
+    </>
   );
 }
