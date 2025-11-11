@@ -10,13 +10,15 @@ export default function AddToCartButton({ product, variants, images }) {
 
   const handleAddToCart = () => {
     if (selectedVariant) {
-      addToCart({
-        variantId: selectedVariant.id,
-        title: product.title,
-        variantTitle: selectedVariant.title,
-        price: selectedVariant.price,
-        image: images[0]?.url,
-      });
+      for (let i = 0; i < quantity; i++) {
+        addToCart({
+          variantId: selectedVariant.id,
+          title: product.title,
+          variantTitle: selectedVariant.title,
+          price: selectedVariant.price,
+          image: images[0]?.url,
+        });
+      }
     }
   };
 
@@ -26,7 +28,7 @@ export default function AddToCartButton({ product, variants, images }) {
     <div className="space-y-6">
       {variants.length > 1 && (
         <div>
-          <label className="block text-sm font-medium mb-2">
+          <label className="block text-xs font-bold text-black mb-3 uppercase">
             Variant
           </label>
           <select
@@ -35,7 +37,7 @@ export default function AddToCartButton({ product, variants, images }) {
               const variant = variants.find(v => v.id === e.target.value);
               setSelectedVariant(variant);
             }}
-            className="w-full border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-black"
+            className="w-full border-2 border-black px-4 py-3 text-black font-medium focus:outline-none"
           >
             {variants.map((variant) => (
               <option key={variant.id} value={variant.id}>
@@ -46,20 +48,20 @@ export default function AddToCartButton({ product, variants, images }) {
         </div>
       )}
 
-      <div className="flex gap-3">
-        <div className="flex items-center border border-gray-300">
+      <div className="flex gap-4">
+        <div className="flex items-center border-2 border-black">
           <button
             onClick={() => setQuantity(Math.max(1, quantity - 1))}
-            className="px-4 py-3 hover:bg-gray-50 text-lg"
+            className="px-6 py-3 text-black font-bold hover:bg-black hover:text-white transition-colors"
           >
             −
           </button>
-          <span className="px-6 py-3 border-x border-gray-300 min-w-[4rem] text-center">
+          <span className="px-8 py-3 border-x-2 border-black font-bold text-black">
             {quantity}
           </span>
           <button
             onClick={() => setQuantity(quantity + 1)}
-            className="px-4 py-3 hover:bg-gray-50 text-lg"
+            className="px-6 py-3 text-black font-bold hover:bg-black hover:text-white transition-colors"
           >
             +
           </button>
@@ -68,24 +70,11 @@ export default function AddToCartButton({ product, variants, images }) {
         <button
           onClick={handleAddToCart}
           disabled={!isAvailable}
-          className="flex-1 bg-black text-white px-8 py-3 hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+          className="flex-1 bg-black text-white px-8 py-3 hover:bg-gray-800 disabled:bg-gray-300 disabled:text-gray-500 transition-colors font-bold text-sm uppercase"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-          </svg>
-          {isAvailable ? 'Add to cart' : 'Out of Stock'}
+          {isAvailable ? 'Add to Cart' : 'Out of Stock'}
         </button>
       </div>
-
-      <button className="w-full bg-white border border-black px-8 py-3 hover:bg-gray-50 transition-colors">
-        Buy it now
-      </button>
-
-      {product.description && (
-        <div className="text-sm text-gray-600">
-          {product.description.substring(0, 100)}...
-        </div>
-      )}
     </div>
   );
 }

@@ -1,14 +1,20 @@
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "./cart/CartContext";
 
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+});
+
 export const metadata = {
-  title: "Shopify Storefront Demo",
-  description: "Next.js storefront wired to Shopify",
+  title: "Test Store - Premium Products",
+  description: "Discover our curated collection of premium products",
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" className={inter.className}>
       <body className="antialiased">
         <CartProvider>
           {children}
